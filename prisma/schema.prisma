@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +9,37 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  name  String
-  email String  @unique
+  id        String   @id @db.Uuid
+  createdAt DateTime @default(now())
+  email     String   @unique
+  name      String?
+}
+
+model Group {
+  id        String   @id @db.Uuid
+  createdAt DateTime @default(now())
+  name      String?
+}
+
+model GroupMember {
+  id        String   @id @db.Uuid
+  createdAt DateTime @default(now())
+  userId    String   @db.Uuid
+  groupId   String   @db.Uuid
+}
+
+model Expense {
+  id          String   @id @db.Uuid
+  createdAt   DateTime @default(now())
+  title       String
+  description String?
+  date        DateTime @default(now())
+  amount      Decimal  @default(0)
+}
+
+model ExpensesUnpaid {
+  id            String   @id @db.Uuid
+  createdAt     DateTime @default(now())
+  expenseId     String   @db.Uuid
+  groupmemberId String   @db.Uuid
 }
