@@ -12,13 +12,19 @@ model User {
   id        String   @id @db.Uuid
   createdAt DateTime @default(now())
   email     String   @unique
-  name      String?
+  name      String? // Treating this as a nickname
+
+  groupMembers GroupMember[] // A user can be in multiple groups
 }
 
 model Group {
-  id        String   @id @db.Uuid
-  createdAt DateTime @default(now())
-  name      String?
+  id          String   @id @db.Uuid
+  createdAt   DateTime @default(now())
+  name        String?
+  description String?
+
+  groupMembers GroupMember[] // A group can have multiple users
+  purchases    Purchase[] // A group makes multiple purchases
 }
 
 model GroupMember {
@@ -26,20 +32,34 @@ model GroupMember {
   createdAt DateTime @default(now())
   userId    String   @db.Uuid
   groupId   String   @db.Uuid
+
+  purchases Purchase[] // A groupMember can make multiple purchases (payer)
+  expenses  Expense[] // A groupMember can incur multiple expenses (payee)
+  user      User       @relation(fields: [userId], references: [id])
+  group     Group      @relation(fields: [groupId], references: [id])
+}
+
+model Purchase {
+  id            String   @id @db.Uuid
+  createdAt     DateTime @default(now())
+  groupId       String   @db.Uuid
+  groupMemberId String   @db.Uuid
+  amount        Decimal
+  title         String
+
+  expenses    Expense[] // Each purchase creates multiple expenses (these are the splits)
+  group       Group       @relation(fields: [groupId], references: [id])
+  groupMember GroupMember @relation(fields: [groupMemberId], references: [id])
 }
 
 model Expense {
-  id          String   @id @db.Uuid
-  createdAt   DateTime @default(now())
-  title       String
-  description String?
-  date        DateTime @default(now())
-  amount      Decimal  @default(0)
-}
-
-model ExpensesUnpaid {
   id            String   @id @db.Uuid
   createdAt     DateTime @default(now())
-  expenseId     String   @db.Uuid
-  groupmemberId String   @db.Uuid
+  date          DateTime @default(now())
+  amount        Decimal
+  groupMemberId String   @db.Uuid
+  purchaseId    String   @db.Uuid
+
+  groupMember GroupMember @relation(fields: [groupMemberId], references: [id])
+  Purchase    Purchase    @relation(fields: [purchaseId], references: [id])
 }
