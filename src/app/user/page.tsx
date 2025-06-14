@@ -1,10 +1,9 @@
-// src/app/user/page.tsx
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { User } from "./types";
 
-export default function Dashboard() {
+function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
@@ -41,5 +40,14 @@ export default function Dashboard() {
         Logout
       </button>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    // !ensure that this fallback is the same as the fallback for !user (line 27)
+    <Suspense fallback={<p>Loading user...</p>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
