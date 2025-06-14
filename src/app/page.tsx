@@ -23,8 +23,8 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-4">Divvy</h1>
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-sm text-black">
+        <h1 className="text-2xl font-bold text-center mb-4 ">Divvy</h1>
         <input
           type="text"
           value={username}
