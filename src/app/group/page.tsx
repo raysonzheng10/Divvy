@@ -1,9 +1,9 @@
 // src/app/page.tsx
 "use client";
-// import { useState } from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function Page() {
+function PageContent() {
   //   const router = useRouter();
   // fetch userId from URL
   const searchParams = useSearchParams();
@@ -15,5 +15,14 @@ export default function Page() {
         <h2 className="text-xl font-bold mb-2">Welcome, {groupMemberId}</h2>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    //! Ensure that this fallback is the same as the fallback for !user
+    <Suspense fallback={<p>Loading user...</p>}>
+      <PageContent />
+    </Suspense>
   );
 }
