@@ -6,18 +6,19 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ userId: string }> },
 ) {
   const params = await context.params; // await here
-  const id = params.id;
+  const userId = params.userId;
 
   // now use id safely
   const user = await prisma.user.findUnique({
-    where: { id },
+    where: { id: userId },
   });
 
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
-  return NextResponse.json({ user });
+
+  return NextResponse.json({ user: user });
 }

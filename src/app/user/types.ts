@@ -4,3 +4,8 @@ export interface User {
   email: string;
   createdAt: string;
 }
+
+export interface UserGroup {
+  groupMemberId: string;
+  groupName: string | null;
+}

@@ -8,6 +8,8 @@ export default function Page() {
   const [username, setUsername] = useState<string>("");
 
   const handleLogin = async () => {
+    //TODO: Change login to Supabase Email OTP
+    //TODO: Will likely require changing to sessions+middleware instead of just dumping info into URL
     const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -16,7 +18,6 @@ export default function Page() {
 
     const data = await res.json();
     if (data?.user?.id) {
-      // Pass the user ID via query param (or use cookies/session later)
       router.push(`/user?userId=${data.user.id}`);
     }
   };
