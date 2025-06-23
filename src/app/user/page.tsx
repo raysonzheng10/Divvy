@@ -32,18 +32,14 @@ function DashboardContent() {
   }, [userId]);
 
   useEffect(() => {
-    const fetchUserGroups = async () => {
-      if (!userId) {
-        return;
-      }
-      const res = await fetch(`api/userGroups/${userId}`);
-      const data = await res.json();
-
-      setUserGroups(data.userGroups);
-    };
-
     fetchUserGroups();
   }, [userId]);
+
+  const fetchUserGroups = async () => {
+    const res = await fetch(`api/userGroups/${userId}`);
+    const data = await res.json();
+    setUserGroups(data.userGroups);
+  };
 
   // ----- button logic -----
   const handleLogout = async () => {
@@ -52,6 +48,20 @@ function DashboardContent() {
 
   const handleGroupPage = async (groupMemberId: string) => {
     router.push(`/group?groupMemberId=${groupMemberId}`);
+  };
+
+  const handleCreateNewGroup = async () => {
+    // create a new group
+    const res = await fetch("api/group/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+
+    // reload the user groups to update in time
+    fetchUserGroups();
   };
 
   //TODO: make a loading component
@@ -70,7 +80,7 @@ function DashboardContent() {
                 onClick={() => handleGroupPage(group.groupMemberId)}
                 className="px-4 py-2 border rounded hover:bg-green-50 cursor-pointer transition"
               >
-                {group.groupName} {group.groupMemberId}
+                {group.groupName ?? "no group name yet"} {group.groupMemberId}
               </button>
             ))
           ) : (
@@ -84,6 +94,12 @@ function DashboardContent() {
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
       >
         Logout
+      </button>
+      <button
+        onClick={handleCreateNewGroup}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Create new group
       </button>
     </div>
   );
