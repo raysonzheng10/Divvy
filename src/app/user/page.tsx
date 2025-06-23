@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { User, UserGroup } from "./types";
 
 function DashboardContent() {
@@ -31,19 +31,15 @@ function DashboardContent() {
     fetchUser();
   }, [userId]);
 
-  useEffect(() => {
-    const fetchUserGroups = async () => {
-      if (!userId) {
-        return;
-      }
-      const res = await fetch(`api/userGroups/${userId}`);
-      const data = await res.json();
-
-      setUserGroups(data.userGroups);
-    };
-
-    fetchUserGroups();
+  const fetchUserGroups = useCallback(async () => {
+    const res = await fetch(`api/userGroups/${userId}`);
+    const data = await res.json();
+    setUserGroups(data.userGroups);
   }, [userId]);
+
+  useEffect(() => {
+    fetchUserGroups();
+  }, [fetchUserGroups]);
 
   // ----- button logic -----
   const handleLogout = async () => {
@@ -54,34 +50,61 @@ function DashboardContent() {
     router.push(`/group?groupMemberId=${groupMemberId}`);
   };
 
+  const handleCreateNewGroup = async () => {
+    // create a new group
+    await fetch("api/group/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+
+    // reload the user groups to update in time
+    fetchUserGroups();
+  };
+
   //TODO: make a loading component
   if (!user) return <p className="text-center mt-10">Loading user...</p>;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-      <div className="bg-white p-6 rounded shadow max-w-md w-full">
-        <h2 className="text-xl font-bold mb-2">Welcome, {user.name}</h2>
-        <h3 className="text-xl font-bold mb-2"> Your Groups </h3>
-        <div className="flex flex-col gap-4">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-50 p-6">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          Welcome, {user.name}
+        </h2>
+
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-gray-700">Your Groups</h3>
+          <button
+            onClick={handleCreateNewGroup}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+          >
+            Create New Group
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3">
           {userGroups.length > 0 ? (
             userGroups.map((group) => (
               <button
                 key={group.groupMemberId}
                 onClick={() => handleGroupPage(group.groupMemberId)}
-                className="px-4 py-2 border rounded hover:bg-green-50 cursor-pointer transition"
+                className="flex flex-col text-left px-5 py-3 border border-gray-300 rounded-md hover:bg-green-100 cursor-pointer transition-colors duration-200"
               >
-                {group.groupName} {group.groupMemberId}
+                <p>{group.groupName ?? "No group name yet"}</p>
+                <p>{group.groupMemberId}</p>
               </button>
             ))
           ) : (
-            <p>No groups yet</p>
+            <p className="text-gray-500 italic">No groups yet</p>
           )}
         </div>
       </div>
 
       <button
         onClick={handleLogout}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 mt-6"
       >
         Logout
       </button>
