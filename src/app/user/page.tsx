@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { User, UserGroup } from "./types";
 
 function DashboardContent() {
@@ -31,15 +31,15 @@ function DashboardContent() {
     fetchUser();
   }, [userId]);
 
-  useEffect(() => {
-    fetchUserGroups();
-  }, [userId]);
-
-  const fetchUserGroups = async () => {
+  const fetchUserGroups = useCallback(async () => {
     const res = await fetch(`api/userGroups/${userId}`);
     const data = await res.json();
     setUserGroups(data.userGroups);
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    fetchUserGroups();
+  }, [fetchUserGroups]);
 
   // ----- button logic -----
   const handleLogout = async () => {
@@ -52,7 +52,7 @@ function DashboardContent() {
 
   const handleCreateNewGroup = async () => {
     // create a new group
-    const res = await fetch("api/group/create", {
+    await fetch("api/group/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

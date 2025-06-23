@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
     data: {},
   });
 
-  console.log("new group created", newGroup);
   const newGroupMember = await prisma.groupMember.create({
     data: {
       userId: userId,
