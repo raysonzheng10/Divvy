@@ -11,6 +11,7 @@ function DashboardContent() {
 
   const [user, setUser] = useState<User | null>(null);
   const [userGroups, setUserGroups] = useState<UserGroup[]>([]);
+  const [joinGroupId, setJoinGroupId] = useState<string>("");
 
   // ----- fetching user data -----
   useEffect(() => {
@@ -64,6 +65,19 @@ function DashboardContent() {
     fetchUserGroups();
   };
 
+  const handleJoinGroup = async () => {
+    await fetch("api/group/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+        groupId: joinGroupId,
+      }),
+    });
+
+    fetchUserGroups();
+  };
+
   //TODO: make a loading component
   if (!user) return <p className="text-center mt-10">Loading user...</p>;
 
@@ -81,6 +95,20 @@ function DashboardContent() {
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
           >
             Create New Group
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between mb-3">
+          <input
+            placeholder="Enter groupID"
+            value={joinGroupId}
+            onChange={(e) => setJoinGroupId(e.target.value)}
+          />
+          <button
+            onClick={handleJoinGroup}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+          >
+            Join
           </button>
         </div>
 
