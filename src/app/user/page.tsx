@@ -98,12 +98,14 @@ function DashboardContent() {
           </button>
         </div>
 
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 gap-4">
           <input
             placeholder="Enter groupID"
             value={joinGroupId}
             onChange={(e) => setJoinGroupId(e.target.value)}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+
           <button
             onClick={handleJoinGroup}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
