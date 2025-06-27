@@ -47,8 +47,11 @@ function DashboardContent() {
     router.push("/");
   };
 
-  const handleGroupPage = async (groupMemberId: string) => {
-    router.push(`/group?groupMemberId=${groupMemberId}`);
+  const handleMoveToGroupPage = async (
+    groupMemberId: string,
+    groupId: string,
+  ) => {
+    router.push(`/group?groupMemberId=${groupMemberId}&groupId=${groupId}`);
   };
 
   const handleCreateNewGroup = async () => {
@@ -119,7 +122,9 @@ function DashboardContent() {
             userGroups.map((group) => (
               <button
                 key={group.groupMemberId}
-                onClick={() => handleGroupPage(group.groupMemberId)}
+                onClick={() =>
+                  handleMoveToGroupPage(group.groupMemberId, group.groupId)
+                }
                 className="flex flex-col text-left px-5 py-3 border border-gray-300 rounded-md hover:bg-green-100 cursor-pointer transition-colors duration-200"
               >
                 <p>{group.groupName ?? "No group name yet"}</p>

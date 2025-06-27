@@ -1,4 +1,3 @@
-// src/app/api/user/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { UserGroup } from "@/app/user/types";
@@ -16,12 +15,13 @@ export async function GET(
     where: { userId: userId },
     select: {
       id: true,
-      group: { select: { name: true } },
+      group: true,
     },
   });
 
   // Reformat into proper type
   const userGroupsRes: UserGroup[] = userGroups.map((userGroup) => ({
+    groupId: userGroup.group.id,
     groupMemberId: userGroup.id,
     groupName: userGroup.group.name,
   }));
