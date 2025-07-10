@@ -56,7 +56,7 @@ function DashboardContent() {
 
   const handleCreateNewGroup = async () => {
     // create a new group
-    await fetch("api/group/create", {
+    await fetch("api/createNewGroup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -128,7 +128,7 @@ function DashboardContent() {
                 className="flex flex-col text-left px-5 py-3 border border-gray-300 rounded-md hover:bg-green-100 cursor-pointer transition-colors duration-200"
               >
                 <p>{group.groupName ?? "No group name yet"}</p>
-                <p>{group.groupMemberId}</p>
+                <p>{group.groupId}</p>
               </button>
             ))
           ) : (

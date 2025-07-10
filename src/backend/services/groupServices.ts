@@ -1,4 +1,8 @@
-import { getGroupMembersWithGroupsByUserId } from "../repositories/groupMemberRepo";
+import {
+  createGroupMember,
+  getGroupMembersWithGroupsByUserId,
+} from "../repositories/groupMemberRepo";
+import { createGroup } from "../repositories/groupRepo";
 import { UserGroup } from "@/app/user/types";
 
 export async function getGroupsForUserId(userId: string) {
@@ -14,4 +18,28 @@ export async function getGroupsForUserId(userId: string) {
   );
 
   return userGroups;
+}
+
+export async function createNewGroupForUserId(userId: string) {
+  console.log("STARTING TO MAKE GROUP");
+
+  const newGroup = await createGroup({
+    name: "New Group",
+    description: "Your New Group!",
+  });
+
+  console.log("GROUP MADE");
+  const newGroupMember = await createGroupMember({
+    userId: userId,
+    groupId: newGroup.id,
+  });
+  console.log("GROUPMEMBER MADE");
+
+  const userGroup: UserGroup = {
+    groupId: newGroup.id,
+    groupMemberId: newGroupMember.id,
+    groupName: newGroup.name,
+  };
+
+  return userGroup;
 }

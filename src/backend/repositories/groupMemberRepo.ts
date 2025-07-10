@@ -21,5 +21,5 @@ export async function createGroupMember(data: {
   userId: string;
   groupId: string;
 }) {
-  return prisma.group.create({ data });
+  return prisma.groupMember.create({ data });
 }
