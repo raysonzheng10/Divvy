@@ -11,5 +11,7 @@ export async function POST(req: NextRequest) {
     data: body,
   });
 
+  //TODO: create expenses with everyone else
+
   return NextResponse.json({ purchaseId: newPurchase.id });
 }
