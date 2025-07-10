@@ -1,10 +1,10 @@
 "use client";
 import { Suspense, useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Group, GroupUser } from "./types";
 
 function PageContent() {
-  const router = useRouter();
+  // const router = useRouter();
 
   // fetch userId from URL
   const searchParams = useSearchParams();
