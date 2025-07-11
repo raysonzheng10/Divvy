@@ -37,6 +37,8 @@ model GroupMember {
   expenses  Expense[] // A groupMember can incur multiple expenses (payee)
   user      User       @relation(fields: [userId], references: [id])
   group     Group      @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
 }
 
 model Purchase {

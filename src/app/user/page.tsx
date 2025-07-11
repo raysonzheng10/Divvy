@@ -69,7 +69,7 @@ function DashboardContent() {
   };
 
   const handleJoinGroup = async () => {
-    await fetch("api/group/join", {
+    await fetch("api/joinExistingGroup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -5,6 +5,20 @@ export async function getGroupMemberById(id: string) {
   return prisma.groupMember.findUnique({ where: { id } });
 }
 
+export async function getGroupMemberByUserIdAndGroupId(
+  userId: string,
+  groupId: string,
+) {
+  return prisma.groupMember.findUnique({
+    where: {
+      userId_groupId: {
+        userId,
+        groupId,
+      },
+    },
+  });
+}
+
 export async function getGroupMembersByUserId(userId: string) {
   return prisma.groupMember.findMany({ where: { userId } });
 }

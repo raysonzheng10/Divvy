@@ -5,7 +5,11 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { userId } = body;
 
-  const userGroup = await createNewGroupForUserId(userId);
-
-  return NextResponse.json({ userGroup: userGroup });
+  try {
+    const userGroup = await createNewGroupForUserId(userId);
+    return NextResponse.json({ userGroup: userGroup });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 }

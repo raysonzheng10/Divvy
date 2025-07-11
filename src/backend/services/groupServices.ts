@@ -1,5 +1,6 @@
 import {
   createGroupMember,
+  getGroupMemberByUserIdAndGroupId,
   getGroupMembersWithGroupsByUserId,
 } from "../repositories/groupMemberRepo";
 import { createGroup } from "../repositories/groupRepo";
@@ -21,19 +22,15 @@ export async function getGroupsForUserId(userId: string) {
 }
 
 export async function createNewGroupForUserId(userId: string) {
-  console.log("STARTING TO MAKE GROUP");
-
   const newGroup = await createGroup({
     name: "New Group",
     description: "Your New Group!",
   });
 
-  console.log("GROUP MADE");
   const newGroupMember = await createGroupMember({
     userId: userId,
     groupId: newGroup.id,
   });
-  console.log("GROUPMEMBER MADE");
 
   const userGroup: UserGroup = {
     groupId: newGroup.id,
@@ -42,4 +39,9 @@ export async function createNewGroupForUserId(userId: string) {
   };
 
   return userGroup;
+}
+
+export async function checkUserIsInGroup(userId: string, groupId: string) {
+  const groupMember = await getGroupMemberByUserIdAndGroupId(userId, groupId);
+  return groupMember != null;
 }
