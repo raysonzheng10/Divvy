@@ -47,11 +47,8 @@ function DashboardContent() {
     router.push("/");
   };
 
-  const handleMoveToGroupPage = async (
-    groupMemberId: string,
-    groupId: string,
-  ) => {
-    router.push(`/group?groupMemberId=${groupMemberId}&groupId=${groupId}`);
+  const handleMoveToGroupPage = async (groupMemberId: string) => {
+    router.push(`/group?groupMemberId=${groupMemberId}`);
   };
 
   const handleCreateNewGroup = async () => {
@@ -79,6 +76,7 @@ function DashboardContent() {
     });
 
     fetchUserGroups();
+    setJoinGroupId("");
   };
 
   //TODO: make a loading component
@@ -88,7 +86,7 @@ function DashboardContent() {
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-50 p-6">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-          Welcome, {user.name}
+          Welcome, {user.email}
         </h2>
 
         <div className="flex items-center justify-between mb-3">
@@ -122,9 +120,7 @@ function DashboardContent() {
             userGroups.map((group) => (
               <button
                 key={group.groupMemberId}
-                onClick={() =>
-                  handleMoveToGroupPage(group.groupMemberId, group.groupId)
-                }
+                onClick={() => handleMoveToGroupPage(group.groupMemberId)}
                 className="flex flex-col text-left px-5 py-3 border border-gray-300 rounded-md hover:bg-green-100 cursor-pointer transition-colors duration-200"
               >
                 <p>{group.groupName ?? "No group name yet"}</p>

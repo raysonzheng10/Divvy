@@ -30,10 +30,19 @@ export async function getGroupMembersWithGroupsByUserId(userId: string) {
   });
 }
 
+export async function getGroupIdByGroupMemberId(groupMemberId: string) {
+  const result = await prisma.groupMember.findUnique({
+    where: { id: groupMemberId },
+    select: { groupId: true },
+  });
+  return result?.groupId ?? null;
+}
+
 // create groupMembers
 export async function createGroupMember(data: {
   userId: string;
   groupId: string;
+  nickname: string;
 }) {
   return prisma.groupMember.create({ data });
 }

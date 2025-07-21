@@ -1,77 +1,54 @@
 "use client";
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Group, GroupUser } from "./types";
+import { Group, GroupMember } from "./types";
 
 function PageContent() {
   // const router = useRouter();
 
   // fetch userId from URL
   const searchParams = useSearchParams();
-  const groupId = searchParams.get("groupId");
   const groupMemberId = searchParams.get("groupMemberId");
 
+  const [error, setError] = useState<string>("");
   const [group, setGroup] = useState<Group | null>(null);
-  const [groupUsers, setGroupUsers] = useState<GroupUser[]>([]);
+  const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
 
   const [purchaseTitle, setPurchaseTitle] = useState<string>("");
   const [purchaseAmount, setPurchaseAmount] = useState<number>(0);
 
   useEffect(() => {
-    const fetchGroup = async () => {
-      if (!groupId) {
-        return;
-      }
-
-      const res = await fetch(`api/group/${groupId}`);
+    const fetchGroupWithGroupMembers = async () => {
+      const res = await fetch(`api/group/${groupMemberId}`);
       const data = await res.json();
 
-      if (data.group) {
+      if (data.error) {
+        // TODO: add error handling
+        setError(data.error);
+      } else {
         setGroup(data.group);
-      } else {
-        // TODO: add error handling
+        setGroupMembers(data.groupMembers);
       }
     };
 
-    fetchGroup();
-  }, [groupId]);
+    fetchGroupWithGroupMembers();
+  }, [groupMemberId]);
 
-  useEffect(() => {
-    const fetchGroupUsers = async () => {
-      if (!groupId) {
-        return;
-      }
+  // const createPurchase = async () => {
+  //   // make the purchase object
+  //   await fetch("api/purchase/create", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       groupId: groupId,
+  //       groupMemberId: groupMemberId,
+  //       title: purchaseTitle,
+  //       amount: purchaseAmount,
+  //     }),
+  //   });
 
-      const res = await fetch(`api/getGroupMembersWithGroupId/${groupId}`);
-      const data = await res.json();
-
-      if (data.groupUsers) {
-        setGroupUsers(data.groupUsers);
-      } else {
-        // TODO: add error handling
-      }
-    };
-
-    fetchGroupUsers();
-  }, [groupId]);
-
-  console.log(groupUsers);
-
-  const createPurchase = async () => {
-    // make the purchase object
-    await fetch("api/purchase/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        groupId: groupId,
-        groupMemberId: groupMemberId,
-        title: purchaseTitle,
-        amount: purchaseAmount,
-      }),
-    });
-
-    // do the even splits for all expenses objects
-  };
+  //   // do the even splits for all expenses objects
+  // };
 
   //TODO: make a loading component
   if (!group) return <p className="text-center mt-10">Loading group...</p>;
@@ -82,16 +59,13 @@ function PageContent() {
         <h1 className="text-xl font-bold mb-2">{group.name}</h1>
         <h2 className="text-l mb-2">{group.description}</h2>
         <h2> group members</h2>
-        {groupUsers.map((groupUser) => (
-          <div
-            key={groupUser.groupMemberId}
-            className="flex flex-col text-left"
-          >
-            <p>{groupUser.name ?? "No name"}</p>
+        {groupMembers.map((groupMember) => (
+          <div key={groupMember.id} className="flex flex-col text-left">
+            <p>{groupMember.nickname ?? "No name"}</p>
           </div>
         ))}
       </div>
-      <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-md w-full">
+      {/* <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-md w-full">
         <h1>Title</h1>
         <input
           placeholder="Enter name of purchase"
@@ -113,7 +87,7 @@ function PageContent() {
         >
           Make Purchase
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

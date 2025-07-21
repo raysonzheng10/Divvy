@@ -1,10 +1,26 @@
 import {
   createGroupMember,
+  getGroupIdByGroupMemberId,
   getGroupMemberByUserIdAndGroupId,
   getGroupMembersWithGroupsByUserId,
 } from "../repositories/groupMemberRepo";
-import { createGroup } from "../repositories/groupRepo";
+import {
+  createGroup,
+  getGroupWithGroupMembersById,
+} from "../repositories/groupRepo";
 import { UserGroup } from "@/app/user/types";
+
+export async function getGroupWithGroupMembersByGroupMemberId(
+  groupMemberId: string,
+) {
+  const groupId = await getGroupIdByGroupMemberId(groupMemberId);
+
+  if (!groupId) return null;
+
+  const groupWithGroupMembers = await getGroupWithGroupMembersById(groupId);
+  return groupWithGroupMembers;
+  //TODO: probably define a type to handle groupWithGroupMembers
+}
 
 export async function getGroupsForUserId(userId: string) {
   const groupMembersWithGroups =
@@ -19,6 +35,11 @@ export async function getGroupsForUserId(userId: string) {
   );
 
   return userGroups;
+}
+
+export async function checkUserIsInGroup(userId: string, groupId: string) {
+  const groupMember = await getGroupMemberByUserIdAndGroupId(userId, groupId);
+  return groupMember != null;
 }
 
 export async function createNewGroupForUserId(userId: string) {
@@ -39,9 +60,4 @@ export async function createNewGroupForUserId(userId: string) {
   };
 
   return userGroup;
-}
-
-export async function checkUserIsInGroup(userId: string, groupId: string) {
-  const groupMember = await getGroupMemberByUserIdAndGroupId(userId, groupId);
-  return groupMember != null;
 }

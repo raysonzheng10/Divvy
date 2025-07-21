@@ -1,4 +1,5 @@
 import { createGroupMember } from "@/backend/repositories/groupMemberRepo";
+import { getUserById } from "@/backend/repositories/userRepo";
 import { checkUserIsInGroup } from "@/backend/services/groupServices";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,9 +22,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const user = await getUserById(userId);
+    if (!user) {
+      return NextResponse.json({ error: "UserId is invalid" }, { status: 400 });
+    }
+
     const newGroupMember = await createGroupMember({
       userId: userId,
       groupId: groupId,
+      nickname: user.email,
     });
 
     return NextResponse.json({ groupMemberId: newGroupMember.id });
