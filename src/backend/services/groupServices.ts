@@ -9,6 +9,7 @@ import {
   getGroupWithGroupMembersById,
 } from "../repositories/groupRepo";
 import { UserGroup } from "@/app/user/types";
+import { getUserById } from "../repositories/userRepo";
 
 export async function getGroupWithGroupMembersByGroupMemberId(
   groupMemberId: string,
@@ -48,9 +49,14 @@ export async function createNewGroupForUserId(userId: string) {
     description: "Your New Group!",
   });
 
+  const user = await getUserById(userId);
+
+  if (!user) throw new Error("User not found");
+
   const newGroupMember = await createGroupMember({
     userId: userId,
     groupId: newGroup.id,
+    nickname: user.email,
   });
 
   const userGroup: UserGroup = {

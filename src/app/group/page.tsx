@@ -14,8 +14,12 @@ function PageContent() {
   const [group, setGroup] = useState<Group | null>(null);
   const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
 
-  const [purchaseTitle, setPurchaseTitle] = useState<string>("");
-  const [purchaseAmount, setPurchaseAmount] = useState<number>(0);
+  const [transactionTitle, setTransactionTitle] = useState<string>("");
+  const [transactionAmount, setTransactionAmount] = useState<number>(0);
+  const [payerId, setPayerId] = useState<string>("");
+  const [splitWithIds, setSplitWithIds] = useState<Set<string>>(new Set());
+
+  // const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
     const fetchGroupWithGroupMembers = async () => {
@@ -34,23 +38,41 @@ function PageContent() {
     fetchGroupWithGroupMembers();
   }, [groupMemberId]);
 
-  // const createPurchase = async () => {
-  //   // make the purchase object
-  //   await fetch("api/purchase/create", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       groupId: groupId,
-  //       groupMemberId: groupMemberId,
-  //       title: purchaseTitle,
-  //       amount: purchaseAmount,
-  //     }),
-  //   });
+  const toggleMember = (id: string) => {
+    setSplitWithIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
 
-  //   // do the even splits for all expenses objects
-  // };
+      return next;
+    });
+  };
+
+  // const fetchTransactions = useCallback(async() => {
+  //   const
+  // })
+  const createTransaction = async () => {
+    // make the purchase object
+    await fetch("api/createNewTransaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payerId: payerId,
+        title: transactionTitle,
+        amount: transactionAmount,
+        splits: [...splitWithIds].map((id) => ({
+          groupMemberId: id,
+          amount: transactionAmount / splitWithIds.size,
+        })),
+      }),
+    });
+  };
 
   //TODO: make a loading component
+  if (error) return <p className="text-center mt-10">Error: {error}</p>;
   if (!group) return <p className="text-center mt-10">Loading group...</p>;
 
   return (
@@ -65,29 +87,61 @@ function PageContent() {
           </div>
         ))}
       </div>
-      {/* <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-md w-full">
-        <h1>Title</h1>
+      <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-md w-full">
+        <h1 className="text-xl font-semibold">New Purchase</h1>
+
         <input
           placeholder="Enter name of purchase"
           type="text"
-          value={purchaseTitle}
-          onChange={(e) => setPurchaseTitle(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={transactionTitle}
+          onChange={(e) => setTransactionTitle(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+
         <input
           placeholder="Enter amount of purchase"
           type="number"
-          value={purchaseAmount}
-          onChange={(e) => setPurchaseAmount(Number(e.target.value))}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={transactionAmount}
+          onChange={(e) => setTransactionAmount(Number(e.target.value))}
+          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+
+        <div className="flex flex-col gap-2">
+          <h2 className="font-medium">Who Paid?</h2>
+          <select
+            value={payerId}
+            onChange={(e) => setPayerId(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select payer</option>
+            {groupMembers.map((groupMember) => (
+              <option key={groupMember.id} value={groupMember.id}>
+                {groupMember.nickname}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="font-medium">Select People to Split With</h2>
+          {groupMembers.map((groupMember) => (
+            <label key={groupMember.id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={splitWithIds.has(groupMember.id)}
+                onChange={() => toggleMember(groupMember.id)}
+              />
+              <span>{groupMember.nickname}</span>
+            </label>
+          ))}
+        </div>
+
         <button
-          onClick={createPurchase}
+          onClick={createTransaction}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
         >
           Make Purchase
         </button>
-      </div> */}
+      </div>
     </div>
   );
 }

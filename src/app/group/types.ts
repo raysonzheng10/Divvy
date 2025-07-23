@@ -12,3 +12,12 @@ export interface GroupMember {
   groupId: string;
   nickname: string;
 }
+
+export interface Transaction {
+  groupMemberId: string;
+  createdAt: Date;
+  title: string;
+  amount: number;
+  id: string;
+  groupId: string;
+}
