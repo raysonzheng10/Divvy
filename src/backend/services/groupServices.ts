@@ -23,7 +23,7 @@ export async function getGroupWithGroupMembersByGroupMemberId(
   //TODO: probably define a type to handle groupWithGroupMembers
 }
 
-export async function getGroupsForUserId(userId: string) {
+export async function getGroupsByUserId(userId: string) {
   const groupMembersWithGroups =
     await getGroupMembersWithGroupsByUserId(userId);
 
@@ -43,7 +43,7 @@ export async function checkUserIsInGroup(userId: string, groupId: string) {
   return groupMember != null;
 }
 
-export async function createNewGroupForUserId(userId: string) {
+export async function createNewGroupByUserId(userId: string) {
   const newGroup = await createGroup({
     name: "New Group",
     description: "Your New Group!",

@@ -1,4 +1,4 @@
-import { createNewGroupForUserId } from "@/backend/services/groupServices";
+import { createNewGroupByUserId } from "@/backend/services/groupServices";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   const { userId } = body;
 
   try {
-    const userGroup = await createNewGroupForUserId(userId);
+    const userGroup = await createNewGroupByUserId(userId);
     return NextResponse.json({ userGroup: userGroup });
   } catch (error) {
     console.error(error);

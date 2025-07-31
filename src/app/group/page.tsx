@@ -1,7 +1,7 @@
 "use client";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Group, GroupMember } from "./types";
+import { Group, GroupMember, Transaction } from "./types";
 
 function PageContent() {
   // const router = useRouter();
@@ -19,8 +19,9 @@ function PageContent() {
   const [payerId, setPayerId] = useState<string>("");
   const [splitWithIds, setSplitWithIds] = useState<Set<string>>(new Set());
 
-  // const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+  // ----- fetching group data -----
   useEffect(() => {
     const fetchGroupWithGroupMembers = async () => {
       const res = await fetch(`api/group/${groupMemberId}`);
@@ -38,6 +39,17 @@ function PageContent() {
     fetchGroupWithGroupMembers();
   }, [groupMemberId]);
 
+  const fetchTransactions = useCallback(async () => {
+    const res = await fetch(`api/transaction/${groupMemberId}`);
+    const data = await res.json();
+
+    setTransactions(data.transactions);
+  }, [groupMemberId]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
   const toggleMember = (id: string) => {
     setSplitWithIds((prev) => {
       const next = new Set(prev);
@@ -51,9 +63,6 @@ function PageContent() {
     });
   };
 
-  // const fetchTransactions = useCallback(async() => {
-  //   const
-  // })
   const createTransaction = async () => {
     // make the purchase object
     await fetch("api/createNewTransaction", {
@@ -69,6 +78,8 @@ function PageContent() {
         })),
       }),
     });
+
+    fetchTransactions();
   };
 
   //TODO: make a loading component
@@ -139,8 +150,46 @@ function PageContent() {
           onClick={createTransaction}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
         >
-          Make Purchase
+          Make Transaction
         </button>
+
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-2">Transaction History</h2>
+          {transactions.length === 0 ? (
+            <p className="text-gray-500">No transactions yet.</p>
+          ) : (
+            <ul className="space-y-4">
+              {transactions.map((transaction) => (
+                <li
+                  key={transaction.id}
+                  className="border border-gray-300 p-4 rounded-md shadow-sm"
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <h3 className="text-md font-bold">{transaction.title}</h3>
+                    <span className="text-green-600 font-semibold">
+                      ${transaction.amount.toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Paid by: {transaction.paidBy}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(transaction.createdAt).toLocaleDateString(
+                      undefined,
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

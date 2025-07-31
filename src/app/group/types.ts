@@ -20,4 +20,5 @@ export interface Transaction {
   amount: number;
   id: string;
   groupId: string;
+  paidBy: string;
 }

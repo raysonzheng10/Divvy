@@ -1,5 +1,6 @@
 import { prisma } from "../db";
 import { getGroupIdByGroupMemberId } from "../repositories/groupMemberRepo";
+import { getTransactionsWithGroupMemberByGroupId } from "../repositories/transactionRepo";
 
 type Split = {
   groupMemberId: string;
@@ -41,4 +42,13 @@ export async function createTransactionWithExpenses(
     console.log(expenses);
     return transaction;
   });
+}
+
+export async function getTransactionsByGroupMemberId(groupMemberId: string) {
+  const groupId = await getGroupIdByGroupMemberId(groupMemberId);
+
+  if (!groupId) throw new Error("Invalid groupMemberId, no matching groupId");
+
+  const transactions = await getTransactionsWithGroupMemberByGroupId(groupId);
+  return transactions;
 }
