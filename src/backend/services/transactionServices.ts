@@ -27,8 +27,7 @@ export async function createTransactionWithExpenses(
       },
     });
 
-    console.log(transaction);
-    const expenses = await Promise.all(
+    await Promise.all(
       splits.map((split: Split) => {
         return tx.expense.create({
           data: {
@@ -39,7 +38,7 @@ export async function createTransactionWithExpenses(
         });
       }),
     );
-    console.log(expenses);
+
     return transaction;
   });
 }
