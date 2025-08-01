@@ -24,6 +24,16 @@ function PageContent() {
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+  const [settlements, setSettlements] = useState<Record<string, number>>({});
+
+  const nicknameMap = groupMembers.reduce(
+    (acc, member) => {
+      acc[member.id] = member.nickname;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
   // ----- fetching group data -----
   useEffect(() => {
     const fetchGroupWithGroupMembers = async () => {
@@ -52,6 +62,17 @@ function PageContent() {
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
+
+  const fetchSettlements = useCallback(async () => {
+    const res = await fetch(`api/settlement/${groupMemberId}`);
+    const data = await res.json();
+
+    setSettlements(data.settlements);
+  }, [groupMemberId]);
+
+  useEffect(() => {
+    fetchSettlements();
+  }, [fetchSettlements]);
 
   const toggleMember = (id: string) => {
     setSplitWithIds((prev) => {
@@ -90,68 +111,99 @@ function PageContent() {
   if (!group) return <p className="text-center mt-10">Loading group...</p>;
 
   return (
-    <div className="min-h-screen flex flex-row items-center justify-center gap-4">
-      {/* Group Info Panel */}
-      <div className="bg-white p-6 rounded shadow max-w-md w-full">
-        <h1 className="text-xl font-bold mb-2">{group.name}</h1>
-        <h2 className="text-l mb-2">{group.description}</h2>
-        <h2> group members</h2>
-        {groupMembers.map((groupMember) => (
-          <div key={groupMember.id} className="flex flex-col text-left">
-            <p>{groupMember.nickname ?? "No name"}</p>
-          </div>
-        ))}
+    <div className="min-h-screen flex flex-col items-center px-4 py-6">
+      {/* Group Info Row */}
+      <div className="bg-white p-6 rounded shadow w-full max-w-4xl mb-6">
+        <h1 className="text-2xl font-bold mb-1">{group.name}</h1>
+        <p className="text-gray-600 mb-4">{group.description}</p>
+        <h2 className="text-md font-semibold mb-2">Group Members</h2>
+        <div className="flex flex-wrap gap-3">
+          {groupMembers.map((member) => (
+            <div
+              key={member.id}
+              className="bg-gray-100 px-3 py-1 rounded-md text-sm"
+            >
+              {member.nickname || "No name"}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Transactions and Modal Trigger */}
-      <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-md w-full">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Transaction History</h2>
-          <button
-            onClick={() => setIsCreateTransactionModalOpen(true)}
-            className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-          >
-            Create Transaction
-          </button>
+      {/* Settlements + Transactions Row */}
+      <div className="flex flex-row gap-6 w-full max-w-4xl">
+        {/* Settlements Panel */}
+        <div className="flex-1 bg-white p-6 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">Settlements</h2>
+          {Object.entries(settlements).length === 0 ? (
+            <p className="text-gray-500">No balances to show.</p>
+          ) : (
+            <ul className="space-y-2">
+              {Object.entries(settlements).map(([memberId, amount]) => {
+                const nickname = nicknameMap[memberId] || "Unknown";
+                if (amount === 0) return null;
+
+                return (
+                  <li key={memberId} className="text-sm text-gray-700">
+                    {amount > 0
+                      ? `${nickname} owes you $${amount.toFixed(2)}`
+                      : `You owe ${nickname} $${Math.abs(amount).toFixed(2)}`}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
-        {transactions.length === 0 ? (
-          <p className="text-gray-500">No transactions yet.</p>
-        ) : (
-          <ul className="space-y-4">
-            {transactions.map((transaction) => (
-              <li
-                key={transaction.id}
-                className="border border-gray-300 p-4 rounded-md shadow-sm"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <h3 className="text-md font-bold">{transaction.title}</h3>
-                  <span className="text-green-600 font-semibold">
-                    ${transaction.amount.toFixed(2)}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Paid by: {transaction.paidBy}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {new Date(transaction.createdAt).toLocaleDateString(
-                    undefined,
-                    {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    },
-                  )}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+        {/* Transactions Panel */}
+        <div className="flex-1 bg-white p-6 rounded shadow">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Transaction History</h2>
+            <button
+              onClick={() => setIsCreateTransactionModalOpen(true)}
+              className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+            >
+              Create Transaction
+            </button>
+          </div>
+
+          {transactions.length === 0 ? (
+            <p className="text-gray-500">No transactions yet.</p>
+          ) : (
+            <ul className="space-y-4">
+              {transactions.map((transaction) => (
+                <li
+                  key={transaction.id}
+                  className="border border-gray-300 p-4 rounded-md shadow-sm"
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <h3 className="text-md font-bold">{transaction.title}</h3>
+                    <span className="text-green-600 font-semibold">
+                      ${transaction.amount.toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Paid by: {transaction.paidBy}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(transaction.createdAt).toLocaleDateString(
+                      undefined,
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal stays unchanged */}
       {isCreateTransactionModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
