@@ -1,5 +1,5 @@
 import { prisma } from "../db";
-import { Prisma, Transaction } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export type TransactionWithGroupMember = Prisma.TransactionGetPayload<{
   include: { groupMember: true };
@@ -23,6 +23,6 @@ export async function createTransaction(data: {
   groupMemberId: string;
   title: string;
   amount: number;
-}): Promise<Transaction> {
+}) {
   return prisma.transaction.create({ data });
 }
