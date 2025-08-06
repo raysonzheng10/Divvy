@@ -34,10 +34,12 @@ model GroupMember {
   groupId   String   @db.Uuid
   nickname  String
 
-  transactions Transaction[] // A groupMember can make multiple transactions (payer)
-  expenses     Expense[] // A groupMember can incur multiple expenses (payee)
-  user         User          @relation(fields: [userId], references: [id])
-  group        Group         @relation(fields: [groupId], references: [id])
+  transactions        Transaction[] // A groupMember can make multiple transactions (payer)
+  expenses            Expense[] // A groupMember can incur multiple expenses (payee)
+  outgoingSettlements Settlement[]  @relation("Payer")
+  incomingSettlements Settlement[]  @relation("Recipient")
+  user                User          @relation(fields: [userId], references: [id])
+  group               Group         @relation(fields: [groupId], references: [id])
 
   @@unique([userId, groupId])
 }
@@ -65,4 +67,15 @@ model Expense {
 
   groupMember GroupMember @relation(fields: [groupMemberId], references: [id])
   transaction Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model Settlement {
+  id          String   @id @default(uuid()) @db.Uuid
+  createdAt   DateTime @default(now())
+  payerId     String   @db.Uuid
+  recipientId String   @db.Uuid
+  amount      Decimal
+
+  payer     GroupMember @relation("Payer", fields: [payerId], references: [id])
+  recipient GroupMember @relation("Recipient", fields: [recipientId], references: [id])
 }
