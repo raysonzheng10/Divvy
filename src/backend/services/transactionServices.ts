@@ -1,6 +1,9 @@
 import { prisma } from "../db";
 import { getGroupIdByGroupMemberId } from "../repositories/groupMemberRepo";
-import { getTransactionsWithGroupMemberByGroupId } from "../repositories/transactionRepo";
+import {
+  getTransactionsWithGroupMemberByGroupId,
+  TransactionWithGroupMember,
+} from "../repositories/transactionRepo";
 
 type Split = {
   groupMemberId: string;
@@ -43,7 +46,9 @@ export async function createTransactionWithExpenses(
   });
 }
 
-export async function getTransactionsByGroupMemberId(groupMemberId: string) {
+export async function getTransactionsByGroupMemberId(
+  groupMemberId: string,
+): Promise<TransactionWithGroupMember[]> {
   const groupId = await getGroupIdByGroupMemberId(groupMemberId);
 
   if (!groupId) throw new Error("Invalid groupMemberId, no matching groupId");
