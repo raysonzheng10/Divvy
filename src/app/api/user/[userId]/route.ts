@@ -1,9 +1,9 @@
-// src/app/api/user/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+//TODO: need to change from dynamic routing to token authentication for Supabase
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ userId: string }> },

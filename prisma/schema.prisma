@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  // output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -12,7 +13,6 @@ model User {
   id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now())
   email     String   @unique
-  name      String? // Treating this as a nickname
 
   groupMembers GroupMember[] // A user can be in multiple groups
 }
@@ -24,7 +24,7 @@ model Group {
   description String?
 
   groupMembers GroupMember[] // A group can have multiple users
-  purchases    Purchase[] // A group makes multiple purchases
+  transactions Transaction[] // A group makes multiple transactions
 }
 
 model GroupMember {
@@ -32,14 +32,19 @@ model GroupMember {
   createdAt DateTime @default(now())
   userId    String   @db.Uuid
   groupId   String   @db.Uuid
+  nickname  String
 
-  purchases Purchase[] // A groupMember can make multiple purchases (payer)
-  expenses  Expense[] // A groupMember can incur multiple expenses (payee)
-  user      User       @relation(fields: [userId], references: [id])
-  group     Group      @relation(fields: [groupId], references: [id])
+  transactions        Transaction[] // A groupMember can make multiple transactions (payer)
+  expenses            Expense[] // A groupMember can incur multiple expenses (payee)
+  outgoingSettlements Settlement[]  @relation("Payer")
+  incomingSettlements Settlement[]  @relation("Recipient")
+  user                User          @relation(fields: [userId], references: [id])
+  group               Group         @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
 }
 
-model Purchase {
+model Transaction {
   id            String   @id @default(uuid()) @db.Uuid
   createdAt     DateTime @default(now())
   groupId       String   @db.Uuid
@@ -47,7 +52,7 @@ model Purchase {
   amount        Decimal
   title         String
 
-  expenses    Expense[] // Each purchase creates multiple expenses (these are the splits)
+  expenses    Expense[] // Each transaction creates multiple expenses (these are the splits)
   group       Group       @relation(fields: [groupId], references: [id])
   groupMember GroupMember @relation(fields: [groupMemberId], references: [id])
 }
@@ -58,8 +63,19 @@ model Expense {
   date          DateTime @default(now())
   amount        Decimal
   groupMemberId String   @db.Uuid
-  purchaseId    String   @db.Uuid
+  transactionId String   @db.Uuid
 
   groupMember GroupMember @relation(fields: [groupMemberId], references: [id])
-  Purchase    Purchase    @relation(fields: [purchaseId], references: [id])
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model Settlement {
+  id          String   @id @default(uuid()) @db.Uuid
+  createdAt   DateTime @default(now())
+  payerId     String   @db.Uuid
+  recipientId String   @db.Uuid
+  amount      Decimal
+
+  payer     GroupMember @relation("Payer", fields: [payerId], references: [id])
+  recipient GroupMember @relation("Recipient", fields: [recipientId], references: [id])
 }

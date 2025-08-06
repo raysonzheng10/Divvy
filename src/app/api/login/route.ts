@@ -1,36 +1,22 @@
-// src/app/api/user/login/route.ts
+import { createUser, getUserByEmail } from "@/backend/repositories/userRepo";
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
+  //? Consider wrapping the json unwrapping in try block
+  const body = await req.json();
+  const email: string = body?.email?.trim();
+
+  if (!email) {
+    return NextResponse.json({ error: "Email is required" }, { status: 400 });
+  }
+
   try {
-    const body = await req.json();
-    const username = body?.username?.trim();
-
-    if (!username) {
-      return NextResponse.json(
-        { error: "Username is required" },
-        { status: 400 },
-      );
-    }
-
-    // Check if user exists
-    let user = await prisma.user.findFirst({
-      where: { name: username },
-    });
-
-    // Create new user if not found
+    let user = await getUserByEmail(email);
     if (!user) {
-      user = await prisma.user.create({
-        data: {
-          name: username,
-          email: `${username}@gmail.com`, // Replace as needed
-        },
+      user = await createUser({
+        email: email,
       });
     }
-
     return NextResponse.json({ user });
   } catch (error) {
     console.error(error);

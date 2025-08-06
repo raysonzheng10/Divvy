@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   const router = useRouter();
-  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
   const handleLogin = async () => {
     //TODO: Change login to Supabase Email OTP
@@ -13,7 +13,7 @@ export default function Page() {
     const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: username }),
+      body: JSON.stringify({ email: email }),
     });
 
     const data = await res.json();
@@ -28,9 +28,9 @@ export default function Page() {
         <h1 className="text-2xl font-bold text-center mb-4 ">Divvy</h1>
         <input
           type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter username"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter email"
           className="w-full px-4 py-2 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button

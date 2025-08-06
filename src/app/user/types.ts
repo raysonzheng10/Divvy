@@ -1,11 +1,11 @@
 export interface User {
   id: string;
-  name: string | null;
-  email: string;
   createdAt: string;
+  email: string;
 }
 
 export interface UserGroup {
+  groupId: string;
   groupMemberId: string;
   groupName: string | null;
 }

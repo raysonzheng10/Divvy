@@ -1,10 +1,7 @@
-// src/app/api/user/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { UserGroup } from "@/app/user/types";
+import { getGroupsByUserId } from "@/backend/services/groupServices";
 
-const prisma = new PrismaClient();
-
+// TODO: change the file path of this file to /api/group/[userId]/route.ts
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ userId: string }> },
@@ -12,20 +9,8 @@ export async function GET(
   const params = await context.params;
   const userId = params.userId;
 
-  const userGroups = await prisma.groupMember.findMany({
-    where: { userId: userId },
-    select: {
-      id: true,
-      group: { select: { name: true } },
-    },
-  });
-
-  // Reformat into proper type
-  const userGroupsRes: UserGroup[] = userGroups.map((userGroup) => ({
-    groupMemberId: userGroup.id,
-    groupName: userGroup.group.name,
-  }));
+  const userGroups = await getGroupsByUserId(userId);
 
   // * This can return an empty list
-  return NextResponse.json({ userGroups: userGroupsRes });
+  return NextResponse.json({ userGroups: userGroups });
 }
