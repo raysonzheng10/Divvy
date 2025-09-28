@@ -8,7 +8,7 @@ import {
   createGroup,
   getGroupWithGroupMembersById,
 } from "../repositories/groupRepo";
-import { UserGroup } from "@/app/user/types";
+import { UserGroup } from "@/app/home/types";
 import { getUserById } from "../repositories/userRepo";
 
 export async function getGroupWithGroupMembersByGroupMemberId(
