@@ -10,6 +10,6 @@ export async function getUserByEmail(email: string) {
 }
 
 // create users
-export async function createUser(data: { email: string }) {
+export async function createUser(data: { id: string; email: string }) {
   return prisma.user.create({ data });
 }
