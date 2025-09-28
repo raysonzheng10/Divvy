@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
-import { supabaseClient } from "../supabaseClient";
+import { supabaseClient } from "../utils/supabaseClient";
 import { Group, User } from "./types";
 
 function DashboardContent() {
@@ -54,6 +54,7 @@ function DashboardContent() {
 
     // Fetch groups using your protected endpoint
     const res = await fetch(`/api/Groups`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

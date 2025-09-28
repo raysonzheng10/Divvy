@@ -1,13 +1,18 @@
 import { createUser, getUserById } from "@/backend/repositories/userRepo";
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthenticatedUser } from "@/app/utils/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, userEmail } = await req.json();
+    const authUser = await getAuthenticatedUser(req);
 
-    if (!userId || !userEmail) {
+    const userId = authUser.id;
+    const userEmail = authUser.email;
+
+    if (!userEmail) {
+      // ! This should never trigger, we only allow account creation via email
       return NextResponse.json(
-        { error: "Missing required fields: userId or userEmail" },
+        { error: "Authenticated user does not have an email" },
         { status: 400 },
       );
     }
@@ -21,8 +26,10 @@ export async function POST(req: NextRequest) {
     // Create new user
     const newUser = await createUser({ id: userId, email: userEmail });
     return NextResponse.json({ user: newUser });
-  } catch (error) {
-    console.error("Error in POST /users:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  } catch (err: unknown) {
+    console.error("Error in POST /users:", err);
+    let message = "Server error";
+    if (err instanceof Error) message = err.message;
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

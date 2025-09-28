@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { supabaseClient } from "./supabaseClient";
+import { supabaseClient } from "./utils/supabaseClient";
 
 export default function LandingPage() {
   const router = useRouter();

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabaseClient } from "../supabaseClient";
+import { supabaseClient } from "../utils/supabaseClient";
 
 export default function Page() {
   const router = useRouter();
@@ -53,11 +53,10 @@ export default function Page() {
     // Create or fetch user in your database
     const res = await fetch("/api/Users", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: data.user.id,
-        userEmail: data.user.email,
-      }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data.session?.access_token}`,
+      },
     });
 
     const result = await res.json();

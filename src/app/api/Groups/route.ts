@@ -1,25 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGroupsByUserId } from "@/backend/services/groupServices";
-import { supabaseClient } from "@/app/supabaseClient";
+import { getAuthenticatedUser } from "@/app/utils/auth";
 
 export async function GET(req: NextRequest) {
-  // 1. Get token from headers
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  try {
+    const authUser = await getAuthenticatedUser(req);
+    const groups = await getGroupsByUserId(authUser.id);
 
-  const token = authHeader.replace("Bearer ", "");
-  const {
-    data: { user },
-    error: userError,
-  } = await supabaseClient.auth.getUser(token);
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({ groups });
+  } catch (err: unknown) {
+    console.error("Error in POST /users:", err);
+    let message = "Server error";
+    if (err instanceof Error) message = err.message;
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  // 2. Fetch groups for this authenticated user
-  const groups = await getGroupsByUserId(user.id);
-
-  return NextResponse.json({ groups });
 }
