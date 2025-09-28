@@ -2,13 +2,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { supabaseClient } from "../supabaseClient";
-import { UserGroup, User } from "./types";
+import { Group, User } from "./types";
 
 function DashboardContent() {
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
-  const [userGroups, setUserGroups] = useState<UserGroup[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [joinGroupId, setJoinGroupId] = useState<string>("");
 
   // ----- fetching user data -----
@@ -38,19 +38,39 @@ function DashboardContent() {
     fetchUser();
   }, []);
 
-  const fetchUserGroups = useCallback(async () => {
-    if (!user) {
+  const fetchGroups = useCallback(async () => {
+    if (!user) return;
+
+    // Get the current Supabase session to retrieve the access token
+    const {
+      data: { session },
+    } = await supabaseClient.auth.getSession();
+    const token = session?.access_token;
+
+    if (!token) {
+      setError("No valid session");
       return;
     }
 
-    const res = await fetch(`api/userGroups/${user.id}`);
+    // Fetch groups using your protected endpoint
+    const res = await fetch(`/api/Groups`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
     const data = await res.json();
-    setUserGroups(data.userGroups);
+    if (res.ok) {
+      setGroups(data.groups);
+    } else {
+      setError(data.error || "Failed to fetch groups");
+    }
   }, [user]);
 
   useEffect(() => {
-    fetchUserGroups();
-  }, [fetchUserGroups]);
+    fetchGroups();
+  }, [fetchGroups]);
 
   // ----- button logic -----
   const handleLogout = async () => {
@@ -62,8 +82,8 @@ function DashboardContent() {
     }
   };
 
-  const handleMoveToGroupPage = async (groupMemberId: string) => {
-    router.push(`/group?groupMemberId=${groupMemberId}`);
+  const handleMoveToGroupPage = async (groupId: string) => {
+    router.push(`/group?groupId=${groupId}`);
   };
 
   const handleCreateNewGroup = async () => {
@@ -77,7 +97,7 @@ function DashboardContent() {
     });
 
     // reload the user groups to update in time
-    fetchUserGroups();
+    fetchGroups();
   };
 
   const handleJoinGroup = async () => {
@@ -90,7 +110,7 @@ function DashboardContent() {
       }),
     });
 
-    fetchUserGroups();
+    fetchGroups();
     setJoinGroupId("");
   };
 
@@ -137,15 +157,15 @@ function DashboardContent() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {userGroups.length > 0 ? (
-            userGroups.map((group) => (
+          {groups.length > 0 ? (
+            groups.map((group) => (
               <button
-                key={group.groupMemberId}
-                onClick={() => handleMoveToGroupPage(group.groupMemberId)}
+                key={group.id}
+                onClick={() => handleMoveToGroupPage(group.id)}
                 className="flex flex-col text-left px-5 py-3 border border-gray-300 rounded-md hover:bg-green-100 cursor-pointer transition-colors duration-200"
               >
                 <p>{group.groupName ?? "No group name yet"}</p>
-                <p>{group.groupId}</p>
+                <p>{group.id}</p>
               </button>
             ))
           ) : (

@@ -1,14 +1,11 @@
+import { prisma } from "../db";
 import {
-  createGroupMember,
   getGroupIdByGroupMemberId,
   getGroupMemberByUserIdAndGroupId,
   getGroupMembersWithGroupsByUserId,
 } from "../repositories/groupMemberRepo";
-import {
-  createGroup,
-  getGroupWithGroupMembersById,
-} from "../repositories/groupRepo";
-import { UserGroup } from "@/app/home/types";
+import { getGroupWithGroupMembersById } from "../repositories/groupRepo";
+import { Group } from "@/app/home/types";
 import { getUserById } from "../repositories/userRepo";
 
 export async function getGroupWithGroupMembersByGroupMemberId(
@@ -27,15 +24,15 @@ export async function getGroupsByUserId(userId: string) {
   const groupMembersWithGroups =
     await getGroupMembersWithGroupsByUserId(userId);
 
-  const userGroups: UserGroup[] = groupMembersWithGroups.map(
+  const groups: Group[] = groupMembersWithGroups.map(
     (groupMemberWithGroup) => ({
-      groupId: groupMemberWithGroup.groupId,
-      groupMemberId: groupMemberWithGroup.id,
+      id: groupMemberWithGroup.groupId,
       groupName: groupMemberWithGroup.group.name,
+      description: groupMemberWithGroup.group.description,
     }),
   );
 
-  return userGroups;
+  return groups;
 }
 
 export async function checkUserIsInGroup(userId: string, groupId: string) {
@@ -44,26 +41,29 @@ export async function checkUserIsInGroup(userId: string, groupId: string) {
 }
 
 export async function createNewGroupByUserId(userId: string) {
-  const newGroup = await createGroup({
-    name: "New Group",
-    description: "Your New Group!",
-  });
-
   const user = await getUserById(userId);
 
   if (!user) throw new Error("User not found");
 
-  const newGroupMember = await createGroupMember({
-    userId: userId,
-    groupId: newGroup.id,
-    nickname: user.email,
+  return prisma.$transaction(async (tx) => {
+    const newGroup = await tx.group.create({
+      data: {
+        name: "New Group",
+        description: "Your New Group!",
+      },
+    });
+    await tx.groupMember.create({
+      data: {
+        userId: userId,
+        groupId: newGroup.id,
+        nickname: user.email,
+      },
+    });
+
+    return {
+      id: newGroup.id,
+      groupName: newGroup.name,
+      description: newGroup.description,
+    };
   });
-
-  const userGroup: UserGroup = {
-    groupId: newGroup.id,
-    groupMemberId: newGroupMember.id,
-    groupName: newGroup.name,
-  };
-
-  return userGroup;
 }
