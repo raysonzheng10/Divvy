@@ -1,14 +1,12 @@
 "use client";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
-import { User, UserGroup } from "./types";
+import { supabaseClient } from "../supabaseClient";
+import { UserGroup, User } from "./types";
 
 function DashboardContent() {
   const router = useRouter();
-  // fetch userId from URL
-  const searchParams = useSearchParams();
-  const userId = searchParams.get("userId");
-
+  const [error, setError] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
   const [userGroups, setUserGroups] = useState<UserGroup[]>([]);
   const [joinGroupId, setJoinGroupId] = useState<string>("");
@@ -16,10 +14,18 @@ function DashboardContent() {
   // ----- fetching user data -----
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) {
+      const {
+        data: { user: authUser },
+        error,
+      } = await supabaseClient.auth.getUser();
+
+      if (error) {
+        // TODO: we should probably redirect the user to login here then
+        setError(error.message);
         return;
       }
-      const res = await fetch(`/api/user/${userId}`);
+
+      const res = await fetch(`/api/user/${authUser?.id}`);
       const data = await res.json();
 
       if (data.user) {
@@ -30,13 +36,17 @@ function DashboardContent() {
     };
 
     fetchUser();
-  }, [userId]);
+  }, []);
 
   const fetchUserGroups = useCallback(async () => {
-    const res = await fetch(`api/userGroups/${userId}`);
+    if (!user) {
+      return;
+    }
+
+    const res = await fetch(`api/userGroups/${user.id}`);
     const data = await res.json();
     setUserGroups(data.userGroups);
-  }, [userId]);
+  }, [user]);
 
   useEffect(() => {
     fetchUserGroups();
@@ -44,7 +54,12 @@ function DashboardContent() {
 
   // ----- button logic -----
   const handleLogout = async () => {
-    router.push("/");
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      setError(error.message);
+    } else {
+      router.push("/");
+    }
   };
 
   const handleMoveToGroupPage = async (groupMemberId: string) => {
@@ -57,7 +72,7 @@ function DashboardContent() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: userId,
+        userId: user?.id,
       }),
     });
 
@@ -70,7 +85,7 @@ function DashboardContent() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: userId,
+        userId: user?.id,
         groupId: joinGroupId,
       }),
     });
@@ -88,6 +103,12 @@ function DashboardContent() {
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">
           Welcome, {user.email}
         </h2>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700">
+            {error}
+          </div>
+        )}
 
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-700">Your Groups</h3>
