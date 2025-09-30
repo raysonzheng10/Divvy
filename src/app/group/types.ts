@@ -11,12 +11,11 @@ export interface GroupMember {
   nickname: string;
 }
 
-export interface Transaction {
-  groupMemberId: string;
-  createdAt: Date;
-  title: string;
-  amount: number;
+export interface DetailedTransaction {
   id: string;
-  groupId: string;
-  paidBy: string;
+  createdAt: Date;
+  amount: number;
+  title: string;
+  groupMemberId: string;
+  groupMemberNickname: string;
 }

@@ -56,3 +56,19 @@ export async function getTransactionsByGroupMemberId(
   const transactions = await getTransactionsWithGroupMemberByGroupId(groupId);
   return transactions;
 }
+
+export async function getDetailedTransactionsByGroupId(groupId: string) {
+  const transactionsWithGroupMember =
+    await getTransactionsWithGroupMemberByGroupId(groupId);
+
+  const detailedTransactions = transactionsWithGroupMember.map((t) => ({
+    id: t.id,
+    createdAt: t.createdAt,
+    amount: t.amount,
+    title: t.title,
+    groupMemberId: t.groupMemberId,
+    groupMemberNickname: t.groupMember.nickname,
+  }));
+
+  return detailedTransactions;
+}

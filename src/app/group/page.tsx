@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Group, GroupMember, Transaction } from "./types";
+import { Group, GroupMember, DetailedTransaction } from "./types";
 
 function PageContent() {
   // const router = useRouter();
@@ -22,7 +22,7 @@ function PageContent() {
   const [payerId, setPayerId] = useState<string>("");
   const [splitWithIds, setSplitWithIds] = useState<Set<string>>(new Set());
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<DetailedTransaction[]>([]);
 
   const [settlements, setSettlements] = useState<Record<string, number>>({});
 
@@ -52,11 +52,11 @@ function PageContent() {
   }, [groupId]);
 
   const fetchTransactions = useCallback(async () => {
-    const res = await fetch(`api/transaction/${groupMemberId}`);
+    const res = await fetch(`api/Transactions/${groupId}`);
     const data = await res.json();
 
     setTransactions(data.transactions);
-  }, [groupMemberId]);
+  }, [groupId]);
 
   useEffect(() => {
     fetchTransactions();
@@ -181,7 +181,7 @@ function PageContent() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-500">
-                    Paid by: {transaction.paidBy}
+                    Paid by: {transaction.groupMemberNickname}
                   </p>
                   <p className="text-sm text-gray-500">
                     {new Date(transaction.createdAt).toLocaleDateString(
