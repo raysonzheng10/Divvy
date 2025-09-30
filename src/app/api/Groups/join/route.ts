@@ -4,9 +4,6 @@ import { checkUserIsInGroup } from "@/backend/services/groupServices";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const body = await req.json();
   const { userId, groupId } = body;
 

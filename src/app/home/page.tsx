@@ -2,7 +2,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { supabaseClient } from "../utils/supabaseClient";
-import { Group, User } from "./types";
+import { User } from "./types";
+import { Group } from "../group/types";
 
 function DashboardContent() {
   const router = useRouter();
@@ -102,7 +103,7 @@ function DashboardContent() {
   };
 
   const handleJoinGroup = async () => {
-    await fetch("api/joinExistingGroup", {
+    await fetch("api/Groups/join", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

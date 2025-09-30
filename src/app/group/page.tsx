@@ -8,7 +8,7 @@ function PageContent() {
 
   // fetch userId from URL
   const searchParams = useSearchParams();
-  const groupMemberId = searchParams.get("groupMemberId");
+  const groupId = searchParams.get("groupId");
 
   const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] =
     useState<boolean>(false);
@@ -37,11 +37,10 @@ function PageContent() {
   // ----- fetching group data -----
   useEffect(() => {
     const fetchGroupWithGroupMembers = async () => {
-      const res = await fetch(`api/group/${groupMemberId}`);
+      const res = await fetch(`api/group/${groupId}`);
       const data = await res.json();
 
       if (data.error) {
-        // TODO: add error handling
         setError(data.error);
       } else {
         setGroup(data.group);
@@ -50,7 +49,7 @@ function PageContent() {
     };
 
     fetchGroupWithGroupMembers();
-  }, [groupMemberId]);
+  }, [groupId]);
 
   const fetchTransactions = useCallback(async () => {
     const res = await fetch(`api/transaction/${groupMemberId}`);

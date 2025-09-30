@@ -8,8 +8,6 @@ export interface Group {
 export interface GroupMember {
   id: string;
   createdAt: Date;
-  userId: string;
-  groupId: string;
   nickname: string;
 }
 
