@@ -4,6 +4,7 @@ import { getAuthenticatedUser } from "@/app/utils/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("trying endpoint");
     const authUser = await getAuthenticatedUser(req);
 
     const userId = authUser.id;
