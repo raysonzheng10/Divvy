@@ -15,7 +15,6 @@ export async function GET(
 
     return NextResponse.json({ transactions: detailedTransactions });
   } catch (err: unknown) {
-    console.error("Error in POST /users:", err);
     let message = "Server error";
     if (err instanceof Error) message = err.message;
     return NextResponse.json({ error: message }, { status: 500 });

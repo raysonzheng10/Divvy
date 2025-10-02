@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
     );
     return NextResponse.json({ transaction: transaction });
   } catch (err: unknown) {
-    console.error("Error in POST /users:", err);
     let message = "Server error";
     if (err instanceof Error) message = err.message;
     return NextResponse.json({ error: message }, { status: 500 });

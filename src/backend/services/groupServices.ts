@@ -58,10 +58,6 @@ export async function createNewGroupByUserId(userId: string) {
       },
     });
 
-    return {
-      id: newGroup.id,
-      groupName: newGroup.name,
-      description: newGroup.description,
-    };
+    return newGroup;
   });
 }

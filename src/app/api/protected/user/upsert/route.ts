@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     const newUser = await createUser({ id: userId, email: userEmail });
     return NextResponse.json({ user: newUser });
   } catch (err: unknown) {
-    console.error("Error in POST /users:", err);
+    console.error("Error in POST /user/upsert:", err);
     let message = "Server error";
     if (err instanceof Error) message = err.message;
     return NextResponse.json({ error: message }, { status: 500 });

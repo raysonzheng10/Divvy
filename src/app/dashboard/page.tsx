@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
-import { supabaseClient } from "../utils/supabaseClient";
 import { User } from "./types";
 import { Group } from "../group/types";
 
@@ -15,66 +14,32 @@ function DashboardContent() {
   // ----- fetching user data -----
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user: authUser, session: authSession },
-        error,
-      } = await supabaseClient.auth.getUser();
-
-      if (error) {
-        // TODO: we should probably redirect the user to login here then
-        setError(error.message);
-        return;
-      }
-
-      const res = await fetch(`/api/Groups`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${authSession.access_token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch("/api/protected/user");
       const data = await res.json();
 
-      if (data.user) {
-        setUser(data.user);
+      if (data.error) {
+        setError(data.error);
       } else {
-        // TODO: add error handling for if not able to fetch user
+        setUser(data.user);
       }
     };
 
     fetchUser();
   }, []);
 
+  // ----- fetching groups that user is in -----
   const fetchGroups = useCallback(async () => {
-    if (!user) return;
-
-    // Get the current Supabase session to retrieve the access token
-    const {
-      data: { session },
-    } = await supabaseClient.auth.getSession();
-    const token = session?.access_token;
-
-    if (!token) {
-      setError("No valid session");
-      return;
-    }
-
-    // Fetch groups using your protected endpoint
-    const res = await fetch(`/api/Groups`, {
+    const res = await fetch("/api/protected/group", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
     });
 
     const data = await res.json();
-    if (res.ok) {
-      setGroups(data.groups);
+    if (data.error) {
+      setError(data.error);
     } else {
-      setError(data.error || "Failed to fetch groups");
+      setGroups(data.groups);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     fetchGroups();
@@ -82,12 +47,10 @@ function DashboardContent() {
 
   // ----- button logic -----
   const handleLogout = async () => {
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) {
-      setError(error.message);
-    } else {
-      router.push("/");
-    }
+    await fetch("api/protected/auth/clearToken", {
+      method: "POST",
+    });
+    router.push("/");
   };
 
   const handleMoveToGroupPage = async (groupId: string) => {
@@ -95,25 +58,18 @@ function DashboardContent() {
   };
 
   const handleCreateNewGroup = async () => {
-    // create a new group
-    await fetch("api/createNewGroup", {
+    await fetch("api/protected/group/create", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user?.id,
-      }),
     });
 
-    // reload the user groups to update in time
-    fetchGroups();
+    fetchGroups(); // reload state
   };
 
   const handleJoinGroup = async () => {
-    await fetch("api/Groups/join", {
+    await fetch("api/protected/group/join", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: user?.id,
         groupId: joinGroupId,
       }),
     });
