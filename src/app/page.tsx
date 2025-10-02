@@ -1,19 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { supabaseClient } from "./utils/supabaseClient";
 
 export default function LandingPage() {
   const router = useRouter();
 
   const handleLoginClick = async () => {
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
-    if (user) {
-      router.push("/home"); // already logged in → go straight in
-    } else {
-      router.push("/login"); // not logged in → show login flow
-    }
+    router.push("/dashboard");
   };
 
   return (

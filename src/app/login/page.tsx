@@ -51,20 +51,27 @@ export default function Page() {
     }
 
     // Create or fetch user in your database
-    const res = await fetch("/api/Users/upsert", {
+    await fetch("/api/auth/setToken", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${data.session?.access_token}`,
       },
+      body: JSON.stringify({
+        access_token: data.session?.access_token,
+        refresh_token: data.session?.refresh_token,
+      }),
+    });
+
+    const res = await fetch("/api/protected/user/upsert", {
+      method: "POST",
     });
 
     const result = await res.json();
     if (result?.error) {
       setError(result.error);
-    } else {
-      router.push(`/home`);
       setIsLoading(false);
+    } else {
+      router.push(`/dashboard`);
     }
   };
 

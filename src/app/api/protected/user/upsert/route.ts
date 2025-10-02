@@ -1,11 +1,14 @@
+// api/protected/user/upsert
 import { createUser, getUserById } from "@/backend/repositories/userRepo";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/app/utils/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("trying endpoint");
     const authUser = await getAuthenticatedUser(req);
+    if (!authUser) {
+      return NextResponse.json({ error: "Not Authenticated" }, { status: 400 });
+    }
 
     const userId = authUser.id;
     const userEmail = authUser.email;
