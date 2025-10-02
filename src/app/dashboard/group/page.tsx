@@ -41,7 +41,9 @@ function PageContent() {
   // ----- fetching group data -----
   useEffect(() => {
     const fetchGroupWithGroupMembers = async () => {
-      const res = await fetch(`api/Groups/${groupId}`);
+      const res = await fetch(`/api/protected/group/${groupId}`, {
+        method: "GET",
+      });
       const data = await res.json();
 
       if (data.error) {
@@ -55,11 +57,18 @@ function PageContent() {
     fetchGroupWithGroupMembers();
   }, [groupId]);
 
+  // ----- fetching group transactions ------
   const fetchTransactions = useCallback(async () => {
-    const res = await fetch(`api/Transactions/${groupId}`);
+    const res = await fetch(`/api/protected/transaction/${groupId}`, {
+      method: "GET",
+    });
     const data = await res.json();
 
-    setTransactions(data.transactions);
+    if (data.error) {
+      setError(data.error);
+    } else {
+      setTransactions(data.transactions);
+    }
   }, [groupId]);
 
   useEffect(() => {

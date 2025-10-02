@@ -1,3 +1,4 @@
+// api/protected/group/[groupId]
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/app/utils/auth";
 import {
@@ -11,8 +12,11 @@ export async function GET(
 ) {
   try {
     const authUser = await getAuthenticatedUser(req);
-    const groupId = (await context.params).groupId;
+    if (!authUser) {
+      return NextResponse.json({ error: "Not Authenticated" }, { status: 400 });
+    }
 
+    const groupId = (await context.params).groupId;
     if (!(await checkUserIsInGroup(authUser.id, groupId))) {
       return NextResponse.json(
         { error: "User is not a part of this group" },
@@ -27,6 +31,7 @@ export async function GET(
       groupMembers: groupWithGroupMembers.groupMembers,
     });
   } catch (err: unknown) {
+    console.error("Error in POST /group/[groupId]:", err);
     let message = "Server error";
     if (err instanceof Error) message = err.message;
     return NextResponse.json({ error: message }, { status: 500 });

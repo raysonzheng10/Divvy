@@ -6,8 +6,8 @@ import {
 } from "../repositories/groupMemberRepo";
 import { getGroupById } from "../repositories/groupRepo";
 import { getUserById } from "../repositories/userRepo";
-import { GroupMember } from "@/app/group/types";
-import { Group } from "@/app/group/types";
+import { GroupMember } from "@/app/dashboard/group/types";
+import { Group } from "@/app/dashboard/group/types";
 
 export async function getGroupWithGroupMembersByGroupId(groupId: string) {
   const group = await getGroupById(groupId);

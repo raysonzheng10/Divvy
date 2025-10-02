@@ -1,8 +1,9 @@
 "use client";
+// dashboard
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { User } from "./types";
-import { Group } from "../group/types";
+import { Group } from "./group/types";
 
 function DashboardContent() {
   const router = useRouter();
@@ -54,7 +55,7 @@ function DashboardContent() {
   };
 
   const handleMoveToGroupPage = async (groupId: string) => {
-    router.push(`/group?groupId=${groupId}`);
+    router.push(`/dashboard/group?groupId=${groupId}`);
   };
 
   const handleCreateNewGroup = async () => {
