@@ -16,7 +16,7 @@ function DashboardContent() {
   useEffect(() => {
     const fetchUser = async () => {
       const {
-        data: { user: authUser },
+        data: { user: authUser, session: authSession },
         error,
       } = await supabaseClient.auth.getUser();
 
@@ -26,7 +26,13 @@ function DashboardContent() {
         return;
       }
 
-      const res = await fetch(`/api/user/${authUser?.id}`);
+      const res = await fetch(`/api/Groups`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authSession.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
       const data = await res.json();
 
       if (data.user) {
@@ -166,7 +172,7 @@ function DashboardContent() {
                 onClick={() => handleMoveToGroupPage(group.id)}
                 className="flex flex-col text-left px-5 py-3 border border-gray-300 rounded-md hover:bg-green-100 cursor-pointer transition-colors duration-200"
               >
-                <p>{group.groupName ?? "No group name yet"}</p>
+                <p>{group.name ?? "No group name yet"}</p>
                 <p>{group.id}</p>
               </button>
             ))

@@ -20,24 +20,28 @@ function PageContent() {
   const [transactionTitle, setTransactionTitle] = useState<string>("");
   const [transactionAmount, setTransactionAmount] = useState<number>(0);
   const [payerId, setPayerId] = useState<string>("");
+
+  // TODO: implement variable splits in expenses
+  // const [expenses, setExpenses] = useState<Expense[]>([]);
+
   const [splitWithIds, setSplitWithIds] = useState<Set<string>>(new Set());
 
   const [transactions, setTransactions] = useState<DetailedTransaction[]>([]);
 
-  const [settlements, setSettlements] = useState<Record<string, number>>({});
+  // const [settlements, setSettlements] = useState<Record<string, number>>({});
 
-  const nicknameMap = groupMembers.reduce(
-    (acc, member) => {
-      acc[member.id] = member.nickname;
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
+  // const nicknameMap = groupMembers.reduce(
+  //   (acc, member) => {
+  //     acc[member.id] = member.nickname;
+  //     return acc;
+  //   },
+  //   {} as Record<string, string>,
+  // );
 
   // ----- fetching group data -----
   useEffect(() => {
     const fetchGroupWithGroupMembers = async () => {
-      const res = await fetch(`api/group/${groupId}`);
+      const res = await fetch(`api/Groups/${groupId}`);
       const data = await res.json();
 
       if (data.error) {
@@ -62,16 +66,16 @@ function PageContent() {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  const fetchSettlements = useCallback(async () => {
-    const res = await fetch(`api/settlement/${groupMemberId}`);
-    const data = await res.json();
+  // const fetchSettlements = useCallback(async () => {
+  //   const res = await fetch(`api/settlement/${groupMemberId}`);
+  //   const data = await res.json();
 
-    setSettlements(data.settlements);
-  }, [groupMemberId]);
+  //   setSettlements(data.settlements);
+  // }, [groupMemberId]);
 
-  useEffect(() => {
-    fetchSettlements();
-  }, [fetchSettlements]);
+  // useEffect(() => {
+  //   fetchSettlements();
+  // }, [fetchSettlements]);
 
   const toggleMember = (id: string) => {
     setSplitWithIds((prev) => {
@@ -88,7 +92,7 @@ function PageContent() {
 
   const createTransaction = async () => {
     // make the purchase object
-    await fetch("api/createNewTransaction", {
+    await fetch("api/Transactions/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -131,7 +135,7 @@ function PageContent() {
       {/* Settlements + Transactions Row */}
       <div className="flex flex-row gap-6 w-full max-w-4xl">
         {/* Settlements Panel */}
-        <div className="flex-1 bg-white p-6 rounded shadow">
+        {/* <div className="flex-1 bg-white p-6 rounded shadow">
           <h2 className="text-lg font-semibold mb-2">Settlements</h2>
           {Object.entries(settlements).length === 0 ? (
             <p className="text-gray-500">No balances to show.</p>
@@ -151,7 +155,7 @@ function PageContent() {
               })}
             </ul>
           )}
-        </div>
+        </div> */}
 
         {/* Transactions Panel */}
         <div className="flex-1 bg-white p-6 rounded shadow">

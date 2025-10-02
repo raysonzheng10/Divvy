@@ -19,3 +19,8 @@ export interface DetailedTransaction {
   groupMemberId: string;
   groupMemberNickname: string;
 }
+
+export interface Expense {
+  groupMemberId: string;
+  amount: number;
+}

@@ -51,7 +51,7 @@ export default function Page() {
     }
 
     // Create or fetch user in your database
-    const res = await fetch("/api/Users", {
+    const res = await fetch("/api/Users/upsert", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
